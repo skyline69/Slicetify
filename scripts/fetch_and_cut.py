@@ -39,8 +39,6 @@ while True:
                      for x in subsubelements[1::2]:
                          songlist.append(x)
 
-    print(offset, "/", response['total'])
-
 for elements in songlist:
     print(elements)
 
@@ -57,10 +55,13 @@ for songs in songlist:
         urn = 'spotify:track:' + songs
         song_data = sp.track(urn)
         song_duration_spotify = song_data["duration_ms"]
-        print("Song geht " + str(song_duration_spotify) + " ms.")
+        sec = round((song_duration_spotify/1000) % 60)
+        min = int(song_duration_spotify/1000/60)
+        print("fetching song: {artist} - {name}\n" + "duration: " + str(min) + " Minuten " + str(sec) + " Sekunden" +"\n" + "converting...")
         song_duration = len(song) - (songfilelength - song_duration_spotify)
         output = song[songstarttime:song_duration]
-        output.export("C:/Users/vince/Desktop/pydub/output" + str(counter) + ".mp3", format="mp3")
+        output.export("C:/Users/vince/Desktop/pydub/output_" + str(counter) + ".mp3", format="mp3")
         songfilelength -= song_duration_spotify
         songstarttime += song_duration_spotify
         counter +=1
+    print("finished: ", offset, "/", response['total'], "have been processed")
