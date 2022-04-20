@@ -2,7 +2,7 @@
 
 ### What is this "Slicetify"
 
- A tool that fetches song data from any Spotify playlist via the Spotify API and slices the audio file accordingly
+Slicetify is a tool that slices a previously recorded audio files into songs and feeds them with data (artist/title/cover/etc.) (via the Spotify API) and outputs individual slices (with pydub) as songs as .mp3 files.
 
 ![logo](https://raw.githubusercontent.com/innocentDE/Slicetify/main/.github/images/slicetify_logo.png)
 
