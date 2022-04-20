@@ -48,15 +48,19 @@ for elements in songlist:
 # whyyyyyyyyyyyyyyyyyyyyyyy uwu
 # get duration of 1 song in ms
 counter = 0
+songfilelength = len(song)
+songstarttime = 0
 for songs in songlist:
     if len(sys.argv) > 1:
         urn = sys.argv[1]
     else:
-        counter +=1
         urn = 'spotify:track:' + songs
         song_data = sp.track(urn)
         song_duration_spotify = song_data["duration_ms"]
         print("Song geht " + str(song_duration_spotify) + " ms.")
-        song_duration = len(song) - (len(song) - song_duration_spotify)
-        output = song[:song_duration]
+        song_duration = len(song) - (songfilelength - song_duration_spotify)
+        output = song[songstarttime:song_duration]
         output.export("C:/Users/vince/Desktop/pydub/output" + str(counter) + ".mp3", format="mp3")
+        songfilelength -= song_duration_spotify
+        songstarttime += song_duration_spotify
+        counter +=1
