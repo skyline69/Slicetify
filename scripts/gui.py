@@ -1,38 +1,59 @@
 import PySimpleGUI as sg
 
 # work in progress, funktionalität und konfigurationsmöglichkeit muss noch ergänzt werden
+sg.set_options(
+    font="FiraCode 12", 
+    background_color="#24292E", 
+    text_element_background_color="#24292E",
+    element_padding=(10,5)
+    )
 
 layout = [
     [sg.Titlebar(
         title = "Slicetify",
         icon = 'C:\\Users\\vince\\Documents\\GitHub\\Slicetify\\.github\\images\\logo_small.png',
         text_color ='#1ED760',
+        font='FiraCode 18 bold',
         background_color = '#24292E',
-        font = 'FiraCode 20 bold',
         key = 'Titlebar',)],
-    [sg.Text('Select your ffmpeg folder:', font='FiraCode 12 italic')],
-    [sg.Combo(sorted(sg.user_settings_get_entry('-filenames-', [])), 
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    [sg.Text('Select your ffmpeg folder:')],
+    [sg.Combo(sorted(sg.user_settings_get_entry('-filenames0-', [])), 
         default_value=sg.user_settings_get_entry('-last filename-', ''), 
         size=(50, 1), 
-        key='-FILENAME0-'), sg.FileBrowse(), sg.B('Clear History')],
+        key='-FILENAME0-'), 
+     sg.FileBrowse()],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-    [sg.Text('Select your audio file:', font='FiraCode 12 italic')],
-    [sg.Combo(sorted(sg.user_settings_get_entry('-filenames-', [])), 
+    [sg.Text('Select your audio file:')],
+    [sg.Combo(sorted(sg.user_settings_get_entry('-filenames1-', [])), 
         default_value=sg.user_settings_get_entry('-last filename-', ''), 
         size=(50, 1), 
-        key='-FILENAME1-'), sg.FileBrowse(), sg.B('Clear History')],
+        key='-FILENAME1-'), 
+     sg.FileBrowse()],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-    [sg.Text('Select your output folder:', font='FiraCode 12 italic')],
+    [sg.Text('Select your output folder:')],
     [sg.Combo(sorted(sg.user_settings_get_entry('-filenames-', [])), 
-        default_value=sg.user_settings_get_entry('-last filename-', ''), 
+        default_value=sg.user_settings_get_entry('-last filename2-', ''), 
         size=(50, 1), 
-        key='-FILENAME2-'), sg.FileBrowse(), sg.B('Clear History')],
+        key='-FILENAME2-'), 
+     sg.FileBrowse()],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-    [sg.Text('Enter your Spotify CLIENT_ID and CLIENT_SECRET:', font='FiraCode 12 italic')],
-    [sg.Text('CLIENT_ID:', font='FiraCode 12 italic'), sg.Input(font='FiraCode 12')],
-    [sg.Text('CLIENT_SECRET:', font='FiraCode 12 italic'), sg.Input(font='FiraCode 12')],
+    [sg.Text('Enter your Spotify CLIENT_ID and CLIENT_SECRET:')],
+    [sg.Text('CLIENT_ID:'), sg.Input(justification='right', expand_x=True)],
+    [sg.Text('CLIENT_SECRET:'), sg.Input(justification='right', expand_x=True)],
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-    [sg.Button('Slice', expand_x=True)]
+    [sg.B('Slice', 
+        key='slice',
+        expand_x=True)
+    ],
+    [sg.ProgressBar(1000, 
+        key='progressbar',
+        orientation='h', 
+        size=(20, 20), 
+        expand_x=True, 
+        pad=(10,10)),
+     sg.Text('x / y', 
+        pad=(0,10))]
 ]
 
 window = sg.Window("", layout)
