@@ -19,72 +19,71 @@ layout = [
         key = 'Titlebar',)],
 
     # AUDIO FILE BROWSER #
-    [
-    sg.Combo(sg.user_settings_get_entry('-filenames1-', []), 
-        default_value=sg.user_settings_get_entry('-last filename1-', ''), 
-        size=(50, 1), 
-        key='-FILENAME1-'),
-        
+    [sg.Text("Folder Setup", font='FiraCode 12 bold underline', text_color='#1ED760')],
+    [ 
         sg.FileBrowse(
-        button_text ='Browse audio file',
-        key = 'audio_file',
-        size=(30,1),
-        file_types = (('MP3 Files', '*.mp3'),))],
+            button_text ='audio file',
+            key = 'audio_file',
+            size=(10,1),
+            file_types = (('MP3 Files', '*.mp3'),)),
+        sg.InputText(size=(30, 1), key='audiokey')
+    ],
 
     # FFMPEG FILE BROWSER #
     [
-    sg.Combo(sg.user_settings_get_entry('-filenames2-', []), 
-        default_value=sg.user_settings_get_entry('-last filename2-', ''), 
-        size=(50, 1), 
-        key='-FILENAME2-'),
-        
-        sg.FileBrowse(
-        button_text ='Browse ffmpeg folder',
-        key = 'ffmpeg_folder',
-        size=(30,1),
-        file_types = (('ALL Files', '*.* *'),))],
+        sg.FolderBrowse(
+            button_text ='ffmpeg folder',
+            key = 'audio_file',
+            size=(10,1)),
+        sg.InputText(size=(30, 1), key='ffmpegkey')
+    ],
 
     # OUTPUT FILE BROWSER #
     [
-    sg.Combo(sg.user_settings_get_entry('-filenames3-', []), 
-        default_value=sg.user_settings_get_entry('-last filename3-', ''), 
-        size=(50, 1), 
-        key='-FILENAME3-'),
-    
-    sg.FileBrowse(
-        button_text ='Browse output folder',
-        key = 'output_folder',
-        size=(30,1),
-        file_types = (('ALL Files', '*.* *'),))],
-    [
-    sg.Button('Save'), sg.B('Clear')
+        sg.FolderBrowse(
+            button_text ='output folder',
+            key = 'audio_file',
+            size=(10,1)),
+        sg.InputText(size=(30, 1), key='outputkey')
     ],
     
-    # SPOTIFY #
-    [sg.Text(
-        text='Spotify CLIENT_ID:',
-        justification='left',
-        expand_x=True)], 
-    [sg.Input(
-         size=(30,2))],
-    [sg.Text(
-        text='Spotify CLIENT_SECRET:', 
-        justification='left', 
-        expand_x=True)],
-    [sg.Input(
-         size=(30,2))],
-
+    # Spotify Playlist/ID/SECRET setup #
+    [sg.Text("Spotify Setup", font='FiraCode 12 bold underline', text_color='#1ED760')],
+    # SPOTIFY PLAYLIST_ID #
+    [
+        sg.Button(
+        button_text='playlist_id', 
+        size=(10,1)),
+        sg.Input(
+        size=(30,2))
+    ],
+    # SPOTIFY CLIENT_ID #
+    [
+        sg.Button(
+        button_text='client_id',
+        size=(10,1)),
+        sg.Input(
+        size=(30,2))
+    ],
+    # SPOTIFY CLIENT_SECRET #
+    [
+        sg.Button(
+        button_text='client_secret',
+        size=(10,1)), 
+        sg.Input(
+        size=(30,2))
+    ],
+    
     # SLICE AND PROGRESSBAR #
     [sg.Button('Slice', 
         key='slice',
-        size=(30, 2))
+        size=(42, 2))
     ],
     [sg.ProgressBar(
         max_value=100, 
         key='progressbar',
         orientation='h', 
-        size=(25, 20), 
-        expand_x=True,
+        size=(29.5, 40),
         visible=False)]
 ]
 
@@ -100,34 +99,6 @@ while True:
         break
     if event == 'slice':
         window['progressbar'].update(visible=True)
-
-    # save and clear button
-    if event == 'Save':
-        # audio
-        sg.user_settings_set_entry('-filenames1-', list(set(sg.user_settings_get_entry('-filenames1-', []) + [values['-FILENAME1-'], ])))
-        sg.user_settings_set_entry('-last filename1-', values['-FILENAME1-'])
-        window['-FILENAME1-'].update(values=list(set(sg.user_settings_get_entry('-filenames-', []))))
-        # ffmpeg
-        sg.user_settings_set_entry('-filenames2-', list(set(sg.user_settings_get_entry('-filenames2-', []) + [values['-FILENAME2-'], ])))
-        sg.user_settings_set_entry('-last filename2-', values['-FILENAME2-'])
-        window['-FILENAME1-'].update(values=list(set(sg.user_settings_get_entry('-filenames2-', []))))
-        # output
-        sg.user_settings_set_entry('-filenames3-', list(set(sg.user_settings_get_entry('-filenames3-', []) + [values['-FILENAME3-'], ])))
-        sg.user_settings_set_entry('-last filename3-', values['-FILENAME3-'])
-        window['-FILENAME3-'].update(values=list(set(sg.user_settings_get_entry('-filenames-', []))))
-    elif event == 'Clear':
-        #audio
-        sg.user_settings_set_entry('-filenames-', [])
-        sg.user_settings_set_entry('-last filename-', '')
-        window['-FILENAME-'].update(values=[], value='')
-        #ffmpeg
-        sg.user_settings_set_entry('-filenames-', [])
-        sg.user_settings_set_entry('-last filename-', '')
-        window['-FILENAME-'].update(values=[], value='')
-        #output
-        sg.user_settings_set_entry('-filenames-', [])
-        sg.user_settings_set_entry('-last filename-', '')
-        window['-FILENAME-'].update(values=[], value='')
 
 # close window #
 window.close()
