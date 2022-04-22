@@ -1,20 +1,27 @@
+# ------------------- The New Way with history and clear -------------------
 import PySimpleGUI as sg
 
-# layout the window
-layout = [[sg.Text('A custom progress meter')],
-          [sg.ProgressBar(1000, orientation='h', size=(20, 20), key='progressbar')],
-          [sg.Cancel()]]
+layout = [
+[sg.Combo(sg.user_settings_get_entry('-filenames-', []), 
+    default_value=sg.user_settings_get_entry('-last filename-', ''), 
+    size=(50, 1), 
+    key='-FILENAME-'),
+ sg.FileBrowse()],
+[sg.Button('Save'), sg.B('Clear')]
+]
 
-# create the window`
-window = sg.Window('Custom Progress Meter', layout)
-progress_bar = window['progressbar']
-# loop that would normally do something useful
-for i in range(1000):
-    # check to see if the cancel button was clicked and exit loop if clicked
-    event, values = window.read(timeout=10)
-    if event == 'Cancel'  or event == sg.WIN_CLOSED:
+window = sg.Window('Filename History Clearable', layout)
+
+while True:
+    event, values = window.read()
+
+    if event == sg.WIN_CLOSED:
         break
-  # update bar with loop value +1 so that bar eventually reaches the maximum
-    progress_bar.UpdateBar(i + 1)
-# done with loop... need to destroy the window as it's still open
-window.close()
+    if event == 'Save':
+        sg.user_settings_set_entry('-filenames-', list(set(sg.user_settings_get_entry('-filenames-', []) + [values['-FILENAME-'], ])))
+        sg.user_settings_set_entry('-last filename-', values['-FILENAME-'])
+        window['-FILENAME-'].update(values=list(set(sg.user_settings_get_entry('-filenames-', []))))
+    elif event == 'Clear':
+        sg.user_settings_set_entry('-filenames-', [])
+        sg.user_settings_set_entry('-last filename-', '')
+        window['-FILENAME-'].update(values=[], value='')
