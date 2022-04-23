@@ -10,7 +10,6 @@ sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 playlist_songlist = []
 songlength = []
 playlist_id = 'spotify:playlist:45OOE0Q5yV9u3uRiSEFdpe'
-# paths (configurable)
 song = AudioSegment.from_file("C:\\Users\\vince\\Desktop\\Slicetify\\song.mp3")
 AudioSegment.converter = "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe"
 AudioSegment.ffmpeg = "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe"
@@ -41,12 +40,16 @@ def getSongList(list, pl_id):
 # cuts and names songs based on the list of songs it gets
 # one argument (list of songs from (getSonglist()))
 def cutAndNameSongs(list):
+    # variables
     counter = 0
     songfilelength = len(song)
     songstarttime = 0
+
+    # iterates given list
     for songs in list:
         if len(sys.argv) > 1:
             urn = sys.argv[1]
+        
         else:
             urn = 'spotify:track:' + songs
             counter +=1
@@ -54,9 +57,12 @@ def cutAndNameSongs(list):
             song_duration_spotify = song_data["duration_ms"]
             sec = round((song_duration_spotify/1000) % 60)
             min = int(song_duration_spotify/1000/60)
+
             print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
             print("fetching song: " + str(song_data["name"]) + "\n" + "duration: "
             + str(min) + " Minuten " + str(sec) + " Sekunden" +"\n" + "converting... " )
+            print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+            
             song_duration = len(song) - (songfilelength - song_duration_spotify)
             output = song[songstarttime:song_duration]
             output.export("C:/Users/vince/Desktop/Slicetify/" + str(song_data["name"]) + ".mp3", format="mp3")
