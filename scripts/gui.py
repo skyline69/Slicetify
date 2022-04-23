@@ -1,6 +1,3 @@
-from cgitb import enable
-from faulthandler import disable
-from tkinter import DISABLED
 import PySimpleGUI as sg
 import app as app
 from pydub import AudioSegment
@@ -14,14 +11,7 @@ sp_pl, sp_id, sp_se = '','',''
 
 # local variables
 songlist = []
-#song = ''
-#AudioSegment.converter = ''
-#AudioSegment.ffmpeg = ''
-#AudioSegment.ffprobe = ''
-song = AudioSegment.from_file("C:\\Users\\vince\\Desktop\\Slicetify\\song.mp3")
-AudioSegment.converter = "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe"
-AudioSegment.ffmpeg = "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe"
-AudioSegment.ffprobe ="C:\\ffmpeg\\ffmpeg\\bin\\ffprobe.exe"
+song = ''
 
 credentials = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
@@ -162,21 +152,21 @@ while True:
         sp_id = 'spotify:playlist:' + str(values['-CLIENT_ID-'])
         sp_se = str(values['-CLIENT_SECRET-'])
 
+        if output_path == '' or sp_pl == '' or ffmpeg_path == '' or audio_path == '':
+            window['-SLICE-'].update(disabled=True)
+        else:
         # enable slice button
-        window['-SLICE-'].update(disabled=False)
+            window['-SLICE-'].update(disabled=False)
 
         # custom path
-        #AudioSegment.converter = ffmpeg_path + '/bin/ffmpeg.exe/'
-        #AudioSegment.ffmpeg = ffmpeg_path + '/bin/ffmpeg.exe/'
-        #AudioSegment.probe = ffmpeg_path + '/bin/probe.exe/'
-        #song = AudioSegment.from_file("C:\\Users\\vince\\Desktop\\Slicetify\\song.mp3")
-        #AudioSegment.converter = "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe"
-        #AudioSegment.ffmpeg = "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe"
-        #AudioSegment.ffprobe ="C:\\ffmpeg\\ffmpeg\\bin\\ffprobe.exe"
+        song = AudioSegment.from_file(audio_path)
+        converter = ffmpeg_path + '/bin/ffmpeg.exe'
+        ffmpeg = ffmpeg_path + '/bin/ffmpeg.exe'
+        probe = ffmpeg_path + '/bin/probe.exe'
 
         #window['progressbar'].update(visible=True)
     if event == '-SLICE-':
-        print()
+        window['-SLICE-'].update(disabled=True)
         app.getSongList(songlist, sp_pl, credentials)
         app.cutAndNameSongs(songlist, song, credentials, output_path)
 
