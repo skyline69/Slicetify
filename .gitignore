@@ -1,0 +1,2 @@
+git rm -r --cached assets/
+git rm --cached .cache
