@@ -3,6 +3,7 @@ import app as app
 from pydub import AudioSegment
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import os
 
 # file and folder information
 audio_path, ffmpeg_path, output_path = '','',''
@@ -148,11 +149,14 @@ while True:
         ffmpeg_path = values['-FFMPEG_INPUT-']
         output_path = values['-OUTPUT_INPUT-']
         # spotify
-        sp_pl = str(values['-PLAYLIST_ID-'])
+        sp_pl = values['-PLAYLIST_ID-']
         sp_id = 'spotify:playlist:' + str(values['-CLIENT_ID-'])
-        sp_se = str(values['-CLIENT_SECRET-'])
+        sp_se = values['-CLIENT_SECRET-']
 
-        if output_path == '' or sp_pl == '' or ffmpeg_path == '' or audio_path == '':
+        os.environ['SPOTIFY_CLIENT_ID'] = sp_id
+        os.environ['SPOTIFY_CLIENT_SECRET'] = sp_se
+
+        if output_path == '' or sp_pl == '' or ffmpeg_path == '' or audio_path == '' or sp_id == '' or sp_se == '':
             window['-SLICE-'].update(disabled=True)
         else:
         # enable slice button
