@@ -1,20 +1,84 @@
 import PySimpleGUI as sg
-import app as app
+import sys
 from pydub import AudioSegment
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import os
+
+# fetches song id's from spotify playlist and puts them into a list
+# two arguments (list that contains the song id's / playlist id (which contains the songs from your Spotify Playlist))
+def getSongList(list, pl_id, spotifyClientCredentials):
+    offset = 0
+    while True:
+        response = spotifyClientCredentials.playlist_items(pl_id,
+                                     offset=offset,
+                                     fields='items.track.id,total',
+                                     additional_types=['track'])
+
+        if len(response['items']) == 0:
+            break
+        offset = offset + len(response['items'])
+        for lists in response['items']:
+             for elements in lists.items():
+                 for subelements in elements:
+                     if isinstance(subelements, str):
+                         continue
+                     for subsubelements in subelements.items():
+                         for subsubsubelements in subsubelements[1::2]:
+                             list.append(subsubsubelements)
+
+# cuts and names songs based on the list of songs it gets
+# one argument (list of songs from (getSonglist()))
+def cutAndNameSongs(list, song_file, spotifyClientCredentials, output_folder):
+
+    # variables
+    counter = 0
+    # length of the audio file that will be slice (in ms)
+    songfilelength = len(song_file)
+    # Time at which the next song will be sliced (starting at 0)
+    # --> Configurable if audio is not in sync with playlist
+    songstarttime = 0
+
+    # iterates given list (previously filled with getSongList() )
+    for songs in list:
+        # no idea what this does, but it says so in the spotipy docs lmao
+        if len(sys.argv) > 1:
+            urn = sys.argv[1]
+        # otherwise get the current song in the loop, get the duration and slice it accordingly 
+        else:
+            urn = 'spotify:track:' + songs
+            counter +=1
+            # song_data contains all song information (probably type(dict)) 
+            song_data = spotifyClientCredentials.track(urn)
+            song_duration_spotify = song_data["duration_ms"]
+            # self explainatory: gets time in seconds and minutes of the iterated song
+            sec = round((song_duration_spotify/1000) % 60)
+            min = int(song_duration_spotify/1000/60)
+
+            # debug print to check for current song 
+            #print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+            #print("fetching song: " + str(song_data["name"]) + "\n" + "duration: "
+            #+ str(min) + " Minuten " + str(sec) + " Sekunden" +"\n" + "converting... " )
+            #print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+            
+            # calculates song length based on the difference of the whole audio file
+            song_duration = len(song_file) - (songfilelength - song_duration_spotify)
+            # specifies the start and end time of the song that needs to be sliced of the audio file
+            output = song_file[songstarttime:song_duration]
+            # exports the sliced file and formats it after the name that was fetched from the Spotify API
+            output.export(output_folder + "/" + str(song_data["name"]) + ".mp3", format="mp3")
+            # recalculates the new time of variables
+            songfilelength -= song_duration_spotify
+            songstarttime += song_duration_spotify
 
 # file and folder information
 audio_path, ffmpeg_path, output_path = '','',''
 # spotify information
 sp_pl, sp_id, sp_se = '','',''
+credentials = ''
 
-# local variables
-songlist = []
+# audio file and list of songs in that audio file
 song = ''
-
-credentials = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+songlist = []
 
 # default configuration of every UI element #
 sg.set_options(
@@ -148,13 +212,12 @@ while True:
         audio_path = values['-AUDIO_INPUT-']
         ffmpeg_path = values['-FFMPEG_INPUT-']
         output_path = values['-OUTPUT_INPUT-']
-        # spotify
-        sp_pl = values['-PLAYLIST_ID-']
-        sp_id = 'spotify:playlist:' + str(values['-CLIENT_ID-'])
+        # sets spotify information for API to work
+        sp_pl = values['-PLAYLIST_ID-'] 
+        sp_id = values['-CLIENT_ID-']
         sp_se = values['-CLIENT_SECRET-']
-
-        os.environ['SPOTIFY_CLIENT_ID'] = sp_id
-        os.environ['SPOTIFY_CLIENT_SECRET'] = sp_se
+            
+        credentials = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=str(sp_id), client_secret=str(sp_se)))
 
         if output_path == '' or sp_pl == '' or ffmpeg_path == '' or audio_path == '' or sp_id == '' or sp_se == '':
             window['-SLICE-'].update(disabled=True)
@@ -171,8 +234,8 @@ while True:
         #window['progressbar'].update(visible=True)
     if event == '-SLICE-':
         window['-SLICE-'].update(disabled=True)
-        app.getSongList(songlist, sp_pl, credentials)
-        app.cutAndNameSongs(songlist, song, credentials, output_path)
+        getSongList(songlist, sp_pl, credentials)
+        cutAndNameSongs(songlist, song, credentials, output_path)
 
 # close window #
 window.close()
