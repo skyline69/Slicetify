@@ -10,11 +10,17 @@ Slicetify is a tool that slices previously recorded audio files into songs and f
 
 In order to fetch, convert and slice your audio file, you need 
 
- - [spotify developer account](https://developer.spotify.com/)
  - [pydub](https://pypi.org/project/pydub/)
+ - [spotipy](https://pypi.org/project/pydub/)
+ - [PYSimpleGUI](https://pypi.org/project/pydub/)
+ - [requests](https://pypi.org/project/pydub/)
  ```shell
  pip install pydub
+ pip install spotipy
+ pip install PYSimpleGUI
+ pip install requests
  ```
+ - [spotify developer account](https://developer.spotify.com/)
  - [ffmpeg](https://www.ffmpeg.org/download.html)
 
 
