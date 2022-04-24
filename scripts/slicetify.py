@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+import requests
 import sys
 from pydub import AudioSegment
 import spotipy
@@ -28,10 +29,10 @@ def getSongList(list, pl_id, spotifyClientCredentials):
 
 # cuts and names songs based on the list of songs it gets
 # one argument (list of songs from (getSonglist()))
-def cutAndNameSongs(list, song_file, spotifyClientCredentials, output_folder):
+def exportSongList(list, song_file, spotifyClientCredentials, output_folder):
 
     # variables
-    counter = 0
+    counter = 0 
     # length of the audio file that will be slice (in ms)
     songfilelength = len(song_file)
     # Time at which the next song will be sliced (starting at 0)
@@ -42,33 +43,47 @@ def cutAndNameSongs(list, song_file, spotifyClientCredentials, output_folder):
     for songs in list:
         # no idea what this does, but it says so in the spotipy docs lmao
         if len(sys.argv) > 1:
-            urn = sys.argv[1]
+            track = sys.argv[1]
         # otherwise get the current song in the loop, get the duration and slice it accordingly 
         else:
-            urn = 'spotify:track:' + songs
+            track = 'spotify:track:' + songs
             counter +=1
             # song_data contains all song information (probably type(dict)) 
-            song_data = spotifyClientCredentials.track(urn)
-            song_duration_spotify = song_data["duration_ms"]
-            # self explainatory: gets time in seconds and minutes of the iterated song
-            sec = round((song_duration_spotify/1000) % 60)
-            min = int(song_duration_spotify/1000/60)
+            song_data = spotifyClientCredentials.track(track)
+            # song data variables
+            duration = str(song_data["duration_ms"])
+            song_name = str(song_data['name'])
+            song_artist = str(song_data['album']['artists'][0]['name'])
+            song_album = str(song_data['album']['name'])
+            song_cover_URL = str(song_data['album']['images'][0]['url'])
+            song_cover = requests.get(song_cover_URL).content
+            with open(f'{song_name} - {song_artist} [{song_album}].jpg', 'wb') as handler:
+                handler.write(song_cover)  
+            song_cover_directory = ''
 
-            # debug print to check for current song 
-            #print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-            #print("fetching song: " + str(song_data["name"]) + "\n" + "duration: "
-            #+ str(min) + " Minuten " + str(sec) + " Sekunden" +"\n" + "converting... " )
-            #print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+            # self explainatory: gets time in seconds and minutes of the iterated song
+            sec = round((int(duration)/1000) % 60)
+            min = int(int(duration)/1000/60)
+            
+            # Debug
+            print(f'{str(counter)} / {str(int(len(list)))}')
+            print(f'{song_name} - {song_artist} [{song_album}]')
+            print(f'{str(min)} minutes {str(sec)} seconds')
             
             # calculates song length based on the difference of the whole audio file
-            song_duration = len(song_file) - (songfilelength - song_duration_spotify)
+            song_duration = len(song_file) - (songfilelength - int(duration))
             # specifies the start and end time of the song that needs to be sliced of the audio file
             output = song_file[songstarttime:song_duration]
             # exports the sliced file and formats it after the name that was fetched from the Spotify API
-            output.export(output_folder + "/" + str(song_data["name"]) + ".mp3", format="mp3")
+            output.export(output_folder + "/" + song_name + ' - ' + song_artist + ".mp3", 
+            format="mp3",
+            tags={"album": song_album, "artist": song_artist}, 
+            bitrate="320k")
+            #cover=song_cover)
+
             # recalculates the new time of variables
-            songfilelength -= song_duration_spotify
-            songstarttime += song_duration_spotify
+            songfilelength -= int(duration)
+            songstarttime += int(duration)
 
 # file and folder information
 audio_path, ffmpeg_path, output_path = '','',''
@@ -235,7 +250,7 @@ while True:
     if event == '-SLICE-':
         window['-SLICE-'].update(disabled=True)
         getSongList(songlist, sp_pl, credentials)
-        cutAndNameSongs(songlist, song, credentials, output_path)
+        exportSongList(songlist, song, credentials, output_path)
 
 # close window #
 window.close()
